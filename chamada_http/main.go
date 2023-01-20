@@ -10,10 +10,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	//defer segura a execuçaao da linha de codigo
+	defer req.Body.Close()
 	res, err := io.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
 	}
 	println(string(res))
-	req.Body.Close()
+
 }
