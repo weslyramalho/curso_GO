@@ -1,4 +1,4 @@
-module github.com/weslyramalho/curso-go
+module teste/banco
 
 go 1.19
 
