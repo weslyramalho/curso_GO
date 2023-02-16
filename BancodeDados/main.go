@@ -22,13 +22,13 @@ func NewProduct(name string, price float64) *Product {
 	}
 }
 func main() {
-	db, err := sql.Open("mysql", "root:root@tcp(localhost:3307)/goexpert")
+	db, err := sql.Open("mysql", "root:root@tcp(localhost:3306)/goexpert")
 	if err != nil {
 		panic(err)
 	}
 
 	defer db.Close()
-	product := NewProduct("notebook", 1899.00)
+	product := NewProduct("notebook", 19.00)
 	err = insertProduct(db, product)
 	if err != nil {
 		panic(err)
