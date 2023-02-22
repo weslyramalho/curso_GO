@@ -28,11 +28,13 @@ func main() {
 	}
 
 	defer db.Close()
-	product := NewProduct("notebook", 19.00)
-	err = insertProduct(db, product)
+
+	product1 := NewProduct("matar", 158.54)
+	err = insertProduct(db, product1)
 	if err != nil {
 		panic(err)
 	}
+
 }
 
 func insertProduct(db *sql.DB, product *Product) error {
