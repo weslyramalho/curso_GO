@@ -1,23 +1,51 @@
 package main
 
 import (
+	"fmt"
+
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
+type Category struct {
+	ID   int `gorm:"primarykey"`
+	Name string
+}
 type Product struct {
-	ID    int `gorm:"primaryKey"`
-	Name  string
-	Price float64
+	ID         int `gorm:"primaryKey"`
+	Name       string
+	Price      float64
+	CategoryID int
+	Category   Category
+	gorm.Model //cria um uppdate, delete e um cretat
 }
 
 func main() {
-	dsn := "root:root@tcp(localhost:3306)/goexpert"
+	dsn := "root:root@tcp(localhost:3306)/goexpert?charset=utf8mb4&parseTime=True&loc=Local" // acrecentar quando for usar gorm.model ?charset=utf8mb4&parseTime=True&loc=local
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	db.AutoMigrate(&Product{})
+	db.AutoMigrate(&Product{}, &Category{})
+
+	var products []Product
+	db.Preload("Category").Find(&products)
+	for _, product := range products {
+		fmt.Println(product.Name, product.Category.Name)
+	}
+
+	/*
+		//create category
+		category := Category{Name: "Bonecos"}
+		db.Create(&category)
+
+		//create product
+		db.Create(&Product{
+			Name:       "Armario",
+			Price:      258.66,
+			CategoryID: category.ID,
+		})
+	*/
 	/*
 			//salva 1 produto
 					db.Create(&Product{
@@ -77,13 +105,15 @@ func main() {
 		}
 	*/
 	//renomear
-	var p Product
-	db.First(&p, 7)
-	p.Name = "Novo nome"
-	db.Save(&p)
-
-	var p2 Product
-	db.First(&p2, 7)
-	db.Delete(&p2)
+	/*
+			var p Product
+			db.First(&p, 7)
+			p.Name = "Novo nome"
+			db.Save(&p)
+		//deletar
+			var p2 Product
+			db.First(&p2, 7)
+			db.Delete(&p2)
+	*/
 
 }
