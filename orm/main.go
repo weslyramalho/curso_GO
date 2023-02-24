@@ -8,8 +8,9 @@ import (
 )
 
 type Category struct {
-	ID   int `gorm:"primarykey"`
-	Name string
+	ID       int `gorm:"primarykey"`
+	Name     string
+	Products []Product
 }
 type Product struct {
 	ID         int `gorm:"primaryKey"`
@@ -17,9 +18,17 @@ type Product struct {
 	Price      float64
 	CategoryID int
 	Category   Category
+	//SerialNumber SerialNumber
 	gorm.Model //cria um uppdate, delete e um cretat
 }
 
+/*
+	type SerialNumber struct {
+		ID        int `gorm:"primaryKey"`
+		Number    string
+		ProductID int
+	}
+*/
 func main() {
 	dsn := "root:root@tcp(localhost:3306)/goexpert?charset=utf8mb4&parseTime=True&loc=Local" // acrecentar quando for usar gorm.model ?charset=utf8mb4&parseTime=True&loc=local
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -28,23 +37,43 @@ func main() {
 	}
 	db.AutoMigrate(&Product{}, &Category{})
 
-	var products []Product
-	db.Preload("Category").Find(&products)
-	for _, product := range products {
-		fmt.Println(product.Name, product.Category.Name)
+	//create category
+	category := Category{Name: "Eletronicos"}
+	db.Create(&category)
+
+	//create product
+	db.Create(&Product{
+		Name:       "Armario",
+		Price:      258.66,
+		CategoryID: category.ID,
+	})
+
+	var categories []Category
+	err = db.Model(&Category{}).Preload("Products").Find(&categories).Error
+	if err != nil {
+		panic(err)
 	}
 
+	for _, category := range categories {
+		fmt.Println(category.Name, ":")
+		for _, product := range category.Products {
+			println("-", product.Name, category.Name)
+		}
+	}
 	/*
-		//create category
-		category := Category{Name: "Bonecos"}
-		db.Create(&category)
-
-		//create product
-		db.Create(&Product{
-			Name:       "Armario",
-			Price:      258.66,
-			CategoryID: category.ID,
+		db.Create(&SerialNumber{
+			Number:    "123456",
+			ProductID: 1,
 		})
+
+		var products []Product
+		db.Preload("Category").Preload("SerialNumber").Find(&products)
+		for _, product := range products {
+			fmt.Println(product.Name, product.Category.Name, product.SerialNumber)
+		}
+
+
+
 	*/
 	/*
 			//salva 1 produto
